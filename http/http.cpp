@@ -14,8 +14,8 @@ std::string makeHttpRequest(std::string fqdn, int port, std::string uri, bool us
         return result;
     }
     //connect to the server
-    std::wstring stemp = std::wstring(fqdn.begin(), fqdn.end());
-    LPCWSTR domain = stemp.c_str();
+    std::wstring wfqdn = std::wstring(fqdn.begin(), fqdn.end());
+    LPCWSTR domain = wfqdn.c_str();
     HINTERNET hConnect;
     hConnect = WinHttpConnect(hInternet, domain, port, 0);
     if(!hConnect){
@@ -23,9 +23,49 @@ std::string makeHttpRequest(std::string fqdn, int port, std::string uri, bool us
         return result;
     }
     //create request
-    
+    HINTERNET hOpenReq;
+    std::wstring wuri = std::wstring(uri.begin(), uri.end());
+    LPCWSTR uriP = wuri.c_str();
+    hOpenReq = WinHttpOpenRequest(
+        hConnect, 
+        L"GET", 
+        uriP, 
+        NULL, 
+        WINHTTP_NO_REFERER, 
+        WINHTTP_DEFAULT_ACCEPT_TYPES, 
+        (useTLS ? WINHTTP_FLAG_SECURE : 0));
+    if(!hOpenReq){
+        printf("[!] Failed to open request");
+        return result;
+    }
+
+    //send request
+    if(!WinHttpSendRequest(hOpenReq, WINHTTP_NO_ADDITIONAL_HEADERS, 0, WINHTTP_NO_REQUEST_DATA, 0, 0, 0)){
+        printf("[!] Failed to send request");
+        return result;
+    }
+    //recieve response
+    if(!WinHttpReceiveResponse(hOpenReq, NULL)){
+        printf("[!] Failed to recieve response");
+        return result;
+    }
+    //query data available
+    LPDWORD data;
+    char* lpBuffer[4096];
+    while(WinHttpQueryDataAvailable(hOpenReq, data)){
+        DWORD dwNumberOfBytesRead;
+        if(!WinHttpReadData(hOpenReq, lpBuffer, *data, &dwNumberOfBytesRead)){
+            printf("[!] Failed to read data");
+        }
+        result.append(std::string myString(data, size), dwNumberOfBytesRead);
+    }
+    //read data
+
+
+    printf("TEST");
     free(hInternet);
     free(hConnect);
+    free(hOpenReq);
     return result;
 }
 

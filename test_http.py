@@ -1,5 +1,5 @@
 import sys
-import requests 
+import pip._vendor.requests as requests
 
 def make_request(fqdn, port, uri, use_tls):
     transport = "http" if use_tls == "0" else "https"

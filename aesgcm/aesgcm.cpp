@@ -107,6 +107,7 @@ void AESGCM::Decrypt(BYTE* nonce, size_t nonceLen, BYTE* data, size_t dataLen, B
 			Cleanup();
 			return;
 		}
+    //SUCCESS!
     return;
 }
 
