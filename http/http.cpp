@@ -6,8 +6,26 @@
 
 std::string makeHttpRequest(std::string fqdn, int port, std::string uri, bool useTLS){
     std::string result;
-    // Your code here
+    //open the client
+    HINTERNET hInternet;
+    hInternet = WinHttpOpen(NULL, WINHTTP_ACCESS_TYPE_DEFAULT_PROXY, WINHTTP_NO_PROXY_NAME, WINHTTP_NO_PROXY_BYPASS, 0);
+    if(!hInternet){
+        printf("[!] Failed to open session");
+        return result;
+    }
+    //connect to the server
+    std::wstring stemp = std::wstring(fqdn.begin(), fqdn.end());
+    LPCWSTR domain = stemp.c_str();
+    HINTERNET hConnect;
+    hConnect = WinHttpConnect(hInternet, domain, port, 0);
+    if(!hConnect){
+        printf("[!] Failed to connect");
+        return result;
+    }
+    //create request
     
+    free(hInternet);
+    free(hConnect);
     return result;
 }
 

@@ -68,11 +68,61 @@ AESGCM::AESGCM( BYTE key[AES_256_KEY_SIZE]){
 
 
 void AESGCM::Decrypt(BYTE* nonce, size_t nonceLen, BYTE* data, size_t dataLen, BYTE* macTag, size_t macTagLen){
-    // change me
+    NTSTATUS status;
+
+    //get buffer size
+    ULONG pcbResult;
+    status = BCryptDecrypt(hKey, data, dataLen, NULL, nonce, nonceLen, NULL, 0, &pcbResult, 0);
+    if (!NT_SUCCESS(status)){
+    	printf("[!] Error getting buffer size: %x", status);
+      Cleanup();
+      return;
+    }
+
+    //allocate memory for the plaintext
+    plaintext = (BYTE*)malloc(pcbResult);
+    if(!NT_SUCCESS(status)){
+      printf("[!] Error allocating memory: %x", status);
+      Cleanup();
+      return;
+    }
+
+    status = BCryptDecrypt(hKey, data, dataLen, NULL, nonce, nonceLen, plaintext, pcbResult, &pcbResult, 0);
+		if(!NT_SUCCESS(status)){
+			printf("[!] Error decrypting data: %x", status);
+			Cleanup();
+			return;
+		}
 }
 
 void AESGCM::Encrypt(BYTE* nonce, size_t nonceLen, BYTE* data, size_t dataLen){
-   // change me
+   //get length for output buffer
+   NTSTATUS status;
+
+   ULONG pcbResult;
+   status = BCryptEncrypt(hKey, data, dataLen, NULL, nonce, nonceLen, NULL, 0, &pcbResult, 0);
+   if (!NT_SUCCESS(status)){
+    printf("[!] Error getting buffer size!");
+    Cleanup();
+    return;
+   }
+    
+   //allocate buffer for ciphertext
+   ciphertext = (BYTE*)malloc(pcbResult);
+   if(!ciphertext){
+    printf("[!] Error with malloc!");
+    Cleanup();
+    return;
+   }
+
+   //encrypt data
+   ULONG bytesDone;
+   status = BCryptEncrypt(hKey, data, dataLen, NULL, nonce, nonceLen, ciphertext, pcbResult, &bytesDone, 0);
+   if(!NT_SUCCESS(status)){
+    printf( "[!] Error encrypting: %x", status);
+    Cleanup();
+    return;
+   }
 }
 
 void AESGCM::Cleanup(){
