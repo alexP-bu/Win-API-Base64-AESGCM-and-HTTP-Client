@@ -25,13 +25,13 @@ std::string  b64Encode(std::vector<BYTE> binaryData){
         printf("[!] Error getting size of buffer");
         return "";
     }
+
     char* output = (char*)malloc(pcchString);
     if(!CryptBinaryToStringA(rawData, binaryData.size(), CRYPT_STRING_BASE64, output, &pcchString)){
         printf("[!] Error converting to base64");
         return "";
     }
     //cleanup
-    free(output);
     free(rawData);
     return returnBuff = output;
 }
@@ -40,10 +40,7 @@ std::string  b64Encode(std::vector<BYTE> binaryData){
 std::vector<BYTE> b64Decode(std::string strInput){
     // as before you should make two calls to ::CryptStringToBinaryA
     // convert strinput to a char buffer
-    char buffer[strInput.length()];
-    for(int i = 0; i < sizeof(buffer); i++){
-        buffer[i] = strInput[i];
-    }
+    const char* buffer = strInput.c_str(); 
     //get length for pcchString
     std::vector<BYTE> out;
     DWORD pcchString;
@@ -63,8 +60,6 @@ std::vector<BYTE> b64Decode(std::string strInput){
     //https://stackoverflow.com/questions/34552783/most-efficient-way-of-copying-a-raw-byte-array-into-an-empty-byte-vector
     out.reserve(pcchString);
     std::copy(rawOutput, rawOutput + pcchString, std::back_inserter(out));
-    //cleanup
-    free(rawOutput);
     return out;
 }
 
