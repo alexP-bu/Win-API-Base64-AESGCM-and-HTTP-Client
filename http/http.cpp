@@ -51,21 +51,28 @@ std::string makeHttpRequest(std::string fqdn, int port, std::string uri, bool us
     }
     //query data available
     LPDWORD data;
-    char* lpBuffer[4096];
-    while(WinHttpQueryDataAvailable(hOpenReq, data)){
+    if(WinHttpQueryDataAvailable(hOpenReq, data)){
+        //read data
+        char lpBuffer[4096];
         DWORD dwNumberOfBytesRead;
-        if(!WinHttpReadData(hOpenReq, lpBuffer, *data, &dwNumberOfBytesRead)){
-            printf("[!] Failed to read data");
+        while(WinHttpReadData(hOpenReq, lpBuffer, *data, &dwNumberOfBytesRead)){
+            if(dwNumberOfBytesRead == 0){
+                break;
+            }
+            for(int i = 0; i < dwNumberOfBytesRead; i++){
+                result += lpBuffer[i];
+            }
+            memset(lpBuffer, 0, sizeof(lpBuffer));
+            dwNumberOfBytesRead = 0;
         }
-        result.append(std::string myString(data, size), dwNumberOfBytesRead);
     }
-    //read data
+    //append null terminator
+    result += "\0";
 
-
-    printf("TEST");
-    free(hInternet);
-    free(hConnect);
-    free(hOpenReq);
+    //close handles
+    WinHttpCloseHandle(hOpenReq);
+    WinHttpCloseHandle(hConnect);
+    WinHttpCloseHandle(hInternet);
     return result;
 }
 
