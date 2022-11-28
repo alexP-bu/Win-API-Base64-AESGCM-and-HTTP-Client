@@ -25,15 +25,15 @@ std::string  b64Encode(std::vector<BYTE> binaryData){
         printf("[!] Error getting size of buffer");
         return "";
     }
-    char* output = (char*)malloc(pcchString);
+    char* output = (char*)malloc(sizeof(char) * pcchString);
     if(!CryptBinaryToStringA(rawData, binaryData.size(), CRYPT_STRING_BASE64, output, &pcchString)){
         printf("[!] Error converting to base64");
         return "";
     }
-    //cleanup
-    free(output);
-    free(rawData);
-    return returnBuff = output;
+    // copy using reserve and assign 
+    returnBuff.reserve(sizeof(char) * pcchString);
+    returnBuff.assign(output, pcchString);
+    return returnBuff;
 }
 
 

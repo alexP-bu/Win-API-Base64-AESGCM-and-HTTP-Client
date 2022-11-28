@@ -10,24 +10,20 @@ endif
 
 all: base64.exe aestest.exe http.exe 
 
+
 .PHONY: all clean 
 
 base64.exe:
-	$(CXX) base64/base64.cpp  -lCrypt32   -o bin/base64.exe 
+	$(CXX) -Wall base64.cpp   -lcrypt32  -static   -o bin/base64.exe 
 
 aestest.exe:
-	$(CXX) aesgcm/aesgcm.cpp  aesgcm/test_aesgcm.cpp  -lcrypt32 -lbcrypt -o bin/aesgcm.exe
-
-
+	$(CXX) -Wall aesgcm.cpp  test_aesgcm.cpp  -lcrypt32 -lbcrypt -static  -o bin/aesgcm.exe
 
 http.exe:
-	$(CXX) http/http.cpp -lwinhttp  -o bin/http.exe
-
+	$(CXX) -Wall http.cpp -lwinhttp -static   -o bin/http.exe
 
 submission.zip:
-	echo "[+] Making submission. Make sure you have all of your Makefiles and src code!"
-	zip -r submission.zip base64 http aesgcm 
+	zip -r submission.zip Makefile base64 http aesgcm 
 
 clean:
 	$(RM)  bin/*.exe 
- 	$(RM) submission.zip

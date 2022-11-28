@@ -17,7 +17,8 @@ std::string makeHttpRequest(std::string fqdn, int port, std::string uri, bool us
     std::wstring wfqdn = std::wstring(fqdn.begin(), fqdn.end());
     LPCWSTR domain = wfqdn.c_str();
     HINTERNET hConnect;
-    hConnect = WinHttpConnect(hInternet, domain, port, 0);
+    INTERNET_PORT internetPort = port;
+    hConnect = WinHttpConnect(hInternet, domain, internetPort, 0);
     if(!hConnect){
         printf("[!] Failed to connect");
         return result;
@@ -50,12 +51,12 @@ std::string makeHttpRequest(std::string fqdn, int port, std::string uri, bool us
         return result;
     }
     //query data available
-    LPDWORD data;
-    if(WinHttpQueryDataAvailable(hOpenReq, data)){
+    DWORD data;
+    if(WinHttpQueryDataAvailable(hOpenReq, &data)){
         //read data
         char lpBuffer[4096];
         DWORD dwNumberOfBytesRead;
-        while(WinHttpReadData(hOpenReq, lpBuffer, *data, &dwNumberOfBytesRead)){
+        while(WinHttpReadData(hOpenReq, lpBuffer, data, &dwNumberOfBytesRead)){
             if(dwNumberOfBytesRead == 0){
                 break;
             }
