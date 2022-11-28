@@ -33,6 +33,9 @@ std::string  b64Encode(std::vector<BYTE> binaryData){
     // copy using reserve and assign 
     returnBuff.reserve(sizeof(char) * pcchString);
     returnBuff.assign(output, pcchString);
+    //cleaup
+    free(output);
+    free(rawData);
     return returnBuff;
 }
 
