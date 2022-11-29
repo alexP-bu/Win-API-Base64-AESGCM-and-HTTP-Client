@@ -5,7 +5,6 @@ AESGCM:: ~AESGCM(){
     Cleanup();
 }
 
-// Freebie: initialize AES class
 AESGCM::AESGCM( BYTE key[AES_256_KEY_SIZE]){
     hAlg = 0;
     hKey = NULL;
